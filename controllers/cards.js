@@ -94,6 +94,10 @@ module.exports.dislikeCard = async (req, res) => {
     }
     res.json(updatedCard);
   } catch (error) {
+    if (error.name === 'CastError') {
+      res.status(ERROR_CODE_VALIDATION).send({ message: 'Передан некорректный _id карточки' });
+      return;
+    }
     res.status(ERROR_CODE_DEFAULT).json({ message: 'Произошла ошибка при постановке лайка' });
   }
 };

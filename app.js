@@ -39,11 +39,7 @@ app.use((req, res, next) => {
 
 // обработчик ошибок для 404
 app.use((err, req, res, next) => {
-  res.status(err.status || 404).json({
-    error: {
-      message: err.message || 'Not Found',
-    },
-  });
+  res.status(err.status || 404).json({ message: err.message || 'Not Found' });
   next();
 });
 
