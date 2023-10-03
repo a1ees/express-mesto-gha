@@ -50,16 +50,25 @@ module.exports.getUserById = async (req, res) => {
 module.exports.updateUserMe = async (req, res) => {
   try {
     const { name, about } = req.body;
-    if (name.length < 2 || name.length > 30 || about.length < 2 || about.length > 30) {
-      res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-      return;
+    const updateUser = {};
+
+    if (name) {
+      if (name.length < 2 || name.length > 30) {
+        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные при обновлении пользователя' });
+        return;
+      }
+      updateUser.name = name;
     }
-    const users = await User.findByIdAndUpdate(req.user._id, { name, about }, { new: true });
-    if (!users) {
-      res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные при обновлении профиля' });
-      return;
+
+    if (about) {
+      if (about.length < 2 || about.length > 30) {
+        res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные при обновлении пользователя' });
+        return;
+      }
+      updateUser.about = about;
     }
-    res.send({ data: users });
+    const user = await User.findByIdAndUpdate(req.user._id, updateUser, { new: true });
+    res.send({ data: user });
   } catch (error) {
     res.status(ERROR_CODE_DEFAULT).send({ message: 'Произошла ошибка при обновлении профиля' });
   }
