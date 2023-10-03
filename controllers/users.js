@@ -39,7 +39,11 @@ module.exports.getUserById = async (req, res) => {
     }
     res.send({ data: user });
   } catch (error) {
-    res.status(500).send({ message: 'Произошла ошибка при поиске пользователя' });
+    if (error.name === 'CastError') {
+      res.status(ERROR_CODE_VALIDATION).send({ message: 'id пользователя указан некорректно' });
+      return;
+    }
+    res.status(500).send({ message: 'Произошла ошибка при получении пользователя' });
   }
 };
 
