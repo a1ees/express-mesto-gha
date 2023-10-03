@@ -76,7 +76,8 @@ module.exports.updateUserMe = async (req, res) => {
 
 module.exports.updateAvatar = async (req, res) => {
   try {
-    const updatedUser = await User.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar });
+    const { avatar } = req.body;
+    const updatedUser = await User.findByIdAndUpdate(req.user._id, { avatar }, { new: true });
     if (!updatedUser) {
       res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные при обновлении аватара' });
       return;
