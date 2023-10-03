@@ -33,7 +33,7 @@ module.exports.createCard = async (req, res) => {
   try {
     const { name, link } = req.body;
     const createdCard = await Card.create({ name, link, owner: req.user._id });
-    res.send({ data: createdCard });
+    res.status(201).send({ data: createdCard });
   } catch (error) {
     if (error.name === 'ValidationError') {
       res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
