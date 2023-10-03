@@ -30,6 +30,23 @@ const cardRoutes = require('./routes/cards');
 app.use('/users', userRoutes);
 app.use('/cards', cardRoutes);
 
+// роут для несуществующих страниц
+app.use((req, res, next) => {
+  const error = new Error('Not Found');
+  error.status = 404;
+  next(error);
+});
+
+// обработчик ошибок для 404
+app.use((err, req, res, next) => {
+  res.status(err.status || 404).json({
+    error: {
+      message: err.message || 'Not Found',
+    },
+  });
+  next();
+});
+
 app.listen(PORT, () => {
   console.log(`Сервер запущен, порт: ${PORT}`);
 });

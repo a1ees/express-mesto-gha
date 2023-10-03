@@ -52,7 +52,11 @@ module.exports.deleteCard = async (req, res) => {
     }
     res.send({ data: card });
   } catch (error) {
-    res.status(500).send({ message: 'Произошла ошибка при удалении карточки' });
+    if (error.name === 'CastError') {
+      res.status(ERROR_CODE_VALIDATION).send({ message: 'Указан некорректный id карточки' });
+      return;
+    }
+    res.status(ERROR_CODE_DEFAULT).send({ message: 'Произошла ошибка при удалении карточки' });
   }
 };
 
@@ -69,6 +73,10 @@ module.exports.likeCard = async (req, res) => {
     }
     res.json(updatedCard);
   } catch (error) {
+    if (error.name === 'CastError') {
+      res.status(ERROR_CODE_VALIDATION).send({ message: 'Передан некорректный _id карточки' });
+      return;
+    }
     res.status(ERROR_CODE_DEFAULT).json({ message: 'Произошла ошибка при постановке лайка' });
   }
 };
