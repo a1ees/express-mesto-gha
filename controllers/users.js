@@ -49,8 +49,11 @@ module.exports.getUserById = async (req, res) => {
 
 module.exports.updateUserMe = async (req, res) => {
   try {
-    const { name, about } = req.body;
-    const users = await User.findByIdAndUpdate(req.user._id, { name: name, about: about });
+    const { user, profession } = req.body;
+    const users = await User.findByIdAndUpdate(
+      req.user._id,
+      { name: user, about: profession },
+      { new: true });
     if (!users) {
       res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные при обновлении профиля' });
       return;
