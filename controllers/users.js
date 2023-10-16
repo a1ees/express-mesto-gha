@@ -37,12 +37,23 @@ module.exports.getUsers = async (req, res, next) => {
 
 module.exports.createUser = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const {
+      email,
+      password,
+      name,
+      about,
+      avatar,
+    } = req.body;
     const hash = await bcrypt.hash(password, 10);
-    const createdUser = await User.create({ email, password: hash });
+    const createdUser = await User.create({
+      email,
+      name,
+      about,
+      avatar,
+      password: hash,
+    });
     const userWithoutPassword = createdUser.toObject();
     delete userWithoutPassword.password;
-    delete userWithoutPassword._id;
     res.status(201).send(userWithoutPassword);
   } catch (error) {
     if (error.name === 'ValidationError') {
