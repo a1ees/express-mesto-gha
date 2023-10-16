@@ -2,14 +2,13 @@ const Card = require('../models/card');
 const ValidationError = require('../errors/validation-err'); // 400
 const ForbiddenError = require('../errors/forbidden-err'); // 500
 const NotFoundError = require('../errors/not-found-err'); // 404
-const DefaultError = require('../errors/default-err'); // 500
 
 module.exports.getCards = async (req, res, next) => {
   try {
     const cards = await Card.find({});
     res.send({ data: cards });
   } catch (error) {
-    next(new DefaultError('Произошла ошибка при поиске карточек'));
+    next(error);
   }
 };
 

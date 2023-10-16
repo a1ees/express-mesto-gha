@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+
+const regexLink = /^https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=-]*)?$/;
+const errorUrl = 'Указан неверный URL';
 // схема пользователя
 const userSchema = new mongoose.Schema({
   name: {
@@ -11,6 +14,10 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    validate: {
+      validator: (v) => regexLink.test(v),
+      message: errorUrl,
+    },
   },
   about: {
     type: String,
@@ -29,7 +36,6 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 8,
     select: false,
   },
 });
