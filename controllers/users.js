@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const ValidationError = require('../errors/validation-err'); // 400
-const BadRequestError = require('../errors/bad-request-err'); // 401
+const UnathorizedError = require('../errors/unathorized-err'); // 401
 const NotFoundError = require('../errors/not-found-err'); // 404
 const ConflictError = require('../errors/conflict-error'); // 409
 
@@ -12,11 +12,11 @@ module.exports.login = async (req, res, next) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      throw new BadRequestError('Неправильные почта или пароль');
+      throw new UnathorizedError('Неправильные почта или пароль');
     }
     const checkPassword = await bcrypt.compare(password, user.password);
     if (!checkPassword) {
-      throw new BadRequestError('Неправильные почта или пароль');
+      throw new UnathorizedError('Неправильные почта или пароль');
     }
     const token = await jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
     res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true });
@@ -85,21 +85,7 @@ module.exports.getUserById = async (req, res, next) => {
 module.exports.updateUserMe = async (req, res, next) => {
   try {
     const { name, about } = req.body;
-    const updateUser = {};
-
-    if (name) {
-      if (name.length < 2 || name.length > 30) {
-        throw new ValidationError('Переданы некорректные данные при обновлении пользователя');
-      }
-      updateUser.name = name;
-    }
-
-    if (about) {
-      if (about.length < 2 || about.length > 30) {
-        throw new ValidationError('Переданы некорректные данные при обновлении пользователя');
-      }
-      updateUser.about = about;
-    }
+    const updateUser = { name, about };
     const user = await User.findByIdAndUpdate(req.user._id, updateUser, { new: true });
     res.send({ data: user });
   } catch (error) {

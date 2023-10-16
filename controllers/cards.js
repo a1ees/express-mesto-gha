@@ -13,12 +13,12 @@ module.exports.getCards = async (req, res, next) => {
   }
 };
 
-module.exports.getCardsById = async (req, res, next) => {
+module.exports.getCardById = async (req, res, next) => {
   try {
     const currentCard = req.params.cardId;
     const cards = await Card.findById(currentCard);
     if (!cards) {
-      throw new ValidationError('Карточки с таким идентификатором не существует');
+      throw new NotFoundError('Карточки с таким идентификатором не существует');
     }
     res.send({ data: cards });
   } catch (error) {
