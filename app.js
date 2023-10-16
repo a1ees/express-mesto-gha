@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const { celebrate, Joi } = require('celebrate');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -18,8 +19,18 @@ mongoose.connection.on('connected', () => {
 
 app.use(bodyParser.json());
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
+  }),
+}), login);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
+  }),
+}), createUser);
 
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
