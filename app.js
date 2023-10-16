@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { celebrate, Joi } = require('celebrate');
+const { errors } = require('celebrate');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -42,6 +43,8 @@ app.use((req, res, next) => {
   err.statusCode = 404;
   next(err);
 });
+
+app.use(errors());
 
 // обработчик ошибок
 app.use((err, req, res, next) => {
