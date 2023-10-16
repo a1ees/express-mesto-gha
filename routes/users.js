@@ -16,7 +16,7 @@ router.get('/me', userInfo);
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().uri(),
+    avatar: Joi.string().required().uri({ scheme: ['https'] }),
   }),
 }), updateAvatar);
 
