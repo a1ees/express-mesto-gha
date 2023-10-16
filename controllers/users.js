@@ -77,8 +77,9 @@ module.exports.getUserById = async (req, res, next) => {
   } catch (error) {
     if (error.name === 'CastError') {
       next(new ValidationError('id пользователя указан некорректно'));
+    } else {
+      next(error);
     }
-    next(error);
   }
 };
 
@@ -97,9 +98,6 @@ module.exports.updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
     const updatedUser = await User.findByIdAndUpdate(req.user._id, { avatar }, { new: true });
-    if (!updatedUser) {
-      throw new ValidationError('Переданы некорректные данные при обновлении аватара');
-    }
     res.send({ data: updatedUser });
   } catch (error) {
     next(error);
