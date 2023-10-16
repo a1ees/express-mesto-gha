@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { login, createUser } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -14,32 +16,36 @@ mongoose.connection.on('connected', () => {
   console.log('Успешное подключение к монгодб');
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '6519abdfbd696c1433795754',
-  };
-
-  next();
-});
-
 app.use(bodyParser.json());
+
+app.post('/signin', login);
+app.post('/signup', createUser);
 
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');
 
-app.use('/users', userRoutes);
-app.use('/cards', cardRoutes);
+app.use('/users', auth, userRoutes);
+app.use('/cards', auth, cardRoutes);
 
 // роут для несуществующих страниц
 app.use((req, res, next) => {
-  const error = new Error('Not Found');
-  error.status = 404;
-  next(error);
+  const err = new Error('Страница не существует');
+  err.statusCode = 404;
+  next(err);
 });
 
-// обработчик ошибок для 404
+// обработчик ошибок
 app.use((err, req, res, next) => {
-  res.status(err.status || 404).json({ message: err.message || 'Not Found' });
+  const { statusCode = 500, message } = err;
+
+  res
+    .status(statusCode)
+    .send({
+      // проверяем статус и выставляем сообщение в зависимости от него
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
   next();
 });
 

@@ -1,66 +1,71 @@
 const Card = require('../models/card');
+const ValidationError = require('../errors/validation-err'); // 400
+const NotFoundError = require('../errors/not-found-err'); // 404
+const DefaultError = require('../errors/default-err'); // 500
 
-const ERROR_CODE_VALIDATION = 400;
-
-const ERROR__CODE_UNDEFINED = 404;
-
-const ERROR_CODE_DEFAULT = 500;
-
-module.exports.getCards = async (req, res) => {
+module.exports.getCards = async (req, res, next) => {
   try {
     const cards = await Card.find({});
     res.send({ data: cards });
   } catch (error) {
-    res.status(ERROR_CODE_DEFAULT).send({ message: 'Произошла ошибка при поиске карточек' });
+    next(new DefaultError('Произошла ошибка при поиске карточек'));
   }
 };
 
-module.exports.getCardsById = async (req, res) => {
+module.exports.getCardsById = async (req, res, next) => {
   try {
     const currentCard = req.params.cardId;
     const cards = await Card.findById(currentCard);
+    if (!cards) {
+      throw new ValidationError('Карточки с таким идентификатором не существует');
+    }
     res.send({ data: cards });
   } catch (error) {
-    if (error.name === 'CastError') {
-      res.status(ERROR_CODE_VALIDATION).send({ message: 'Карточки с таким идентификатором не существует' });
-      return;
-    }
-    res.status(ERROR_CODE_DEFAULT).send({ message: 'Произошла ошибка при поиске карточки' });
+    next(error);
   }
 };
 
-module.exports.createCard = async (req, res) => {
+module.exports.createCard = async (req, res, next) => {
   try {
     const { name, link } = req.body;
     const createdCard = await Card.create({ name, link, owner: req.user._id });
     res.status(201).send({ data: createdCard });
   } catch (error) {
     if (error.name === 'ValidationError') {
-      res.status(ERROR_CODE_VALIDATION).send({ message: 'Переданы некорректные данные' });
-      return;
+      next(new ValidationError('Переданы некорректные данные'));
     }
-    res.status(ERROR_CODE_DEFAULT).send({ message: 'Произошла ошибка при создании карточки' });
+    next(error);
   }
 };
 
-module.exports.deleteCard = async (req, res) => {
+module.exports.deleteCard = async (req, res, next) => {
+  const { cardId } = req.params; // взяли id карточки из запроса
+  const userId = req.user._id; // взяли id авторизованного юзера
+
   try {
-    const card = await Card.findByIdAndRemove(req.params.cardId);
-    if (!card) {
-      res.status(ERROR__CODE_UNDEFINED).send({ message: 'Карточка с указанным _id не найдена' });
-      return;
+    const cardSearch = await Card.findById(cardId); // нашли карточку из запроса по id
+
+    if (!cardSearch) {
+      throw new NotFoundError('Карточка с указанным _id не найдена');
     }
-    res.send({ data: card });
+
+    const cardOwnerId = cardSearch.owner.toString(); // достали id создателя из найденной карточки
+
+    if (cardOwnerId !== userId) {
+      throw new DefaultError('У вас нет прав для удаления этой карточки');
+    }
+
+    const deletedCard = await Card.findByIdAndRemove(cardId); // удаляем карточку, все совпало
+    res.send({ data: deletedCard }); // отправляем карточку в тело ответа после успешного удаления
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(ERROR_CODE_VALIDATION).send({ message: 'Указан некорректный id карточки' });
-      return;
+      next(new ValidationError('Указан некорректный id карточки'));
     }
-    res.status(ERROR_CODE_DEFAULT).send({ message: 'Произошла ошибка при удалении карточки' });
+    next(error);
   }
 };
 
-module.exports.likeCard = async (req, res) => {
+module.exports.likeCard = async (req, res, next) => {
   try {
     const updatedCard = await Card.findByIdAndUpdate(
       req.params.cardId,
@@ -68,20 +73,18 @@ module.exports.likeCard = async (req, res) => {
       { new: true },
     );
     if (!updatedCard) {
-      res.status(ERROR__CODE_UNDEFINED).send({ message: 'Передан несуществующий _id карточки' });
-      return;
+      throw new NotFoundError('Передан несуществующий _id карточки');
     }
     res.json(updatedCard);
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(ERROR_CODE_VALIDATION).send({ message: 'Передан некорректный _id карточки' });
-      return;
+      next(new ValidationError('Передан некорректный _id карточки'));
     }
-    res.status(ERROR_CODE_DEFAULT).json({ message: 'Произошла ошибка при постановке лайка' });
+    next(error);
   }
 };
 
-module.exports.dislikeCard = async (req, res) => {
+module.exports.dislikeCard = async (req, res, next) => {
   try {
     const updatedCard = await Card.findByIdAndUpdate(
       req.params.cardId,
@@ -89,15 +92,13 @@ module.exports.dislikeCard = async (req, res) => {
       { new: true },
     );
     if (!updatedCard) {
-      res.status(ERROR__CODE_UNDEFINED).send({ message: 'Передан несуществующий _id карточки' });
-      return;
+      throw new NotFoundError('Передан несуществующий _id карточки');
     }
     res.json(updatedCard);
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(ERROR_CODE_VALIDATION).send({ message: 'Передан некорректный _id карточки' });
-      return;
+      next(new ValidationError('Передан некорректный _id карточки'));
     }
-    res.status(ERROR_CODE_DEFAULT).json({ message: 'Произошла ошибка при постановке лайка' });
+    next(error);
   }
 };
