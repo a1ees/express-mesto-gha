@@ -40,7 +40,14 @@ module.exports.createUser = async (req, res, next) => {
     const { email, password } = req.body;
     const hash = await bcrypt.hash(password, 10);
     const createdUser = await User.create({ email, password: hash });
-    res.status(201).send({ data: createdUser });
+    const resBody = {
+      name: createdUser.email,
+      avatar: createdUser.avatar,
+      about: createdUser.about,
+      email: createdUser.email,
+      _id: createdUser._id,
+    }
+    res.status(201).send({ data: resBody });
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new ValidationError('Переданы некорректные данные при создании пользователя'));
