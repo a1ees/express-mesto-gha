@@ -58,11 +58,11 @@ module.exports.createUser = async (req, res, next) => {
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new ValidationError('Переданы некорректные данные при создании пользователя'));
-    }
-    if (error.code === 11000) {
+    } else if (error.code === 11000) {
       next(new ConflictError('Пользователь с данной почтой уже зарегистрирован'));
+    } else {
+      next(error);
     }
-    next(error);
   }
 };
 
