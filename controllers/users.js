@@ -40,12 +40,8 @@ module.exports.createUser = async (req, res, next) => {
     const { email, password } = req.body;
     const hash = await bcrypt.hash(password, 10);
     const createdUser = await User.create({ email, password: hash });
-    const userWithoutPassword = {
-      email: createdUser.email,
-      name: createdUser.name,
-      about: createdUser.about,
-      avatar: createdUser.avatar,
-    };
+    const userWithoutPassword = createdUser.toObject();
+    delete userWithoutPassword.password;
     res.status(201).send({ data: userWithoutPassword });
   } catch (error) {
     if (error.name === 'ValidationError') {
