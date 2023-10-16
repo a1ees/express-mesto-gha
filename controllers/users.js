@@ -20,7 +20,7 @@ module.exports.login = async (req, res, next) => {
     }
     const token = await jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
     res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true });
-    res.send(token);
+    res.send({ message: 'Авторизация прошла успешно' });
   } catch (error) {
     next(error);
   }
@@ -42,7 +42,7 @@ module.exports.createUser = async (req, res, next) => {
     const createdUser = await User.create({ email, password: hash });
     const userWithoutPassword = createdUser.toObject();
     delete userWithoutPassword.password;
-    res.status(201).send({ data: userWithoutPassword });
+    res.status(201).send(userWithoutPassword);
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new ValidationError('Переданы некорректные данные при создании пользователя'));
