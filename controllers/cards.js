@@ -1,5 +1,6 @@
 const Card = require('../models/card');
 const ValidationError = require('../errors/validation-err'); // 400
+const ForbiddenError = require('../errors/forbidden-err'); // 500
 const NotFoundError = require('../errors/not-found-err'); // 404
 const DefaultError = require('../errors/default-err'); // 500
 
@@ -52,7 +53,7 @@ module.exports.deleteCard = async (req, res, next) => {
     const cardOwnerId = cardSearch.owner.toString(); // достали id создателя из найденной карточки
 
     if (cardOwnerId !== userId) {
-      throw new DefaultError('У вас нет прав для удаления этой карточки');
+      throw new ForbiddenError('У вас нет прав для удаления этой карточки');
     }
 
     const deletedCard = await Card.findByIdAndRemove(cardId); // удаляем карточку, все совпало
