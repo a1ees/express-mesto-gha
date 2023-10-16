@@ -41,11 +41,10 @@ module.exports.createUser = async (req, res, next) => {
     const hash = await bcrypt.hash(password, 10);
     const createdUser = await User.create({ email, password: hash });
     const userWithoutPassword = {
-      _id: createdUser._id,
-      name: createdUser.name,
-      avatar: createdUser.avatar,
-      about: createdUser.about,
       email: createdUser.email,
+      name: createdUser.name,
+      about: createdUser.about,
+      avatar: createdUser.avatar,
     };
     res.status(201).send({ data: userWithoutPassword });
   } catch (error) {
