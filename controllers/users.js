@@ -42,6 +42,7 @@ module.exports.createUser = async (req, res, next) => {
     const createdUser = await User.create({ email, password: hash });
     const userWithoutPassword = createdUser.toObject();
     delete userWithoutPassword.password;
+    delete userWithoutPassword._id;
     res.status(201).send(userWithoutPassword);
   } catch (error) {
     if (error.name === 'ValidationError') {
