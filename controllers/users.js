@@ -45,8 +45,7 @@ module.exports.createUser = async (req, res, next) => {
       avatar: createdUser.avatar,
       about: createdUser.about,
       email: createdUser.email,
-      _id: createdUser._id,
-    }
+    };
     res.status(201).send({ data: resBody });
   } catch (error) {
     if (error.name === 'ValidationError') {
