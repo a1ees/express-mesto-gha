@@ -4,6 +4,8 @@ const { getCards, createCard, deleteCard } = require('../controllers/cards');
 
 const { likeCard, dislikeCard, getCardById } = require('../controllers/cards');
 
+const regexLink = /^https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=-]*)?$/;
+
 router.get('/', getCards);
 
 router.get('/:cardId', getCardById);
@@ -11,7 +13,7 @@ router.get('/:cardId', getCardById);
 router.post('/', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().uri({ scheme: ['https'] }),
+    link: Joi.string().regex(regexLink).required(),
   }),
 }), createCard);
 
