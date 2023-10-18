@@ -8,6 +8,8 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-err');
 
+const regexLink = /^https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=-]*)?$/;
+
 const app = express();
 const { PORT = 3000 } = process.env;
 
@@ -35,7 +37,7 @@ app.post('/signup', celebrate({
     about: Joi.string().min(2).max(30),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
-    avatar: Joi.string(),
+    avatar: Joi.string().regex(regexLink),
   }),
 }), createUser);
 
