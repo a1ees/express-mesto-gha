@@ -6,7 +6,7 @@ const NotFoundError = require('../errors/not-found-err'); // 404
 module.exports.getCards = async (req, res, next) => {
   try {
     const cards = await Card.find({});
-    res.send({ data: cards });
+    res.send(cards.reverse());
   } catch (error) {
     next(error);
   }
@@ -28,8 +28,8 @@ module.exports.getCardById = async (req, res, next) => {
 module.exports.createCard = async (req, res, next) => {
   try {
     const { name, link } = req.body;
-    const createdCard = await Card.create({ name, link, owner: req.user._id });
-    res.status(201).send({ data: createdCard });
+    const createdCard = await Card.create({ name, link, owner: req.user._id});
+    res.status(201).send(createdCard);
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new ValidationError('Переданы некорректные данные'));

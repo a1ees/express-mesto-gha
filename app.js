@@ -8,10 +8,14 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-err');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const cors = require('cors');
 
 const regexLink = /^https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=-]*)?$/;
 
 const app = express();
+
+app.use(cors({ origin:['http://localhost:3001'], credentials: true }));
+
 const { PORT = 3000 } = process.env;
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
@@ -42,6 +46,11 @@ app.post('/signup', celebrate({
     avatar: Joi.string().regex(regexLink),
   }),
 }), createUser);
+
+app.get('/clear-cookie', (req, res) => {
+  res.clearCookie('jwt');
+  res.send('Куки удалены.');
+});
 
 const userRoutes = require('./routes/users');
 const cardRoutes = require('./routes/cards');

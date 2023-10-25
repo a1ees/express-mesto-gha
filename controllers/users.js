@@ -19,8 +19,8 @@ module.exports.login = async (req, res, next) => {
       throw new UnathorizedError('Неправильные почта или пароль');
     }
     const token = await jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-    res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true });
-    res.send({ message: 'Авторизация прошла успешно' });
+    res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true, sameSite: true });
+    res.send({ _id: user._id });
   } catch (error) {
     next(error);
   }
@@ -88,7 +88,7 @@ module.exports.updateUserMe = async (req, res, next) => {
     const { name, about } = req.body;
     const updateUser = { name, about };
     const user = await User.findByIdAndUpdate(req.user._id, updateUser, { new: true });
-    res.send({ data: user });
+    res.send(user);
   } catch (error) {
     next(error);
   }
@@ -98,7 +98,7 @@ module.exports.updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
     const updatedUser = await User.findByIdAndUpdate(req.user._id, { avatar }, { new: true });
-    res.send({ data: updatedUser });
+    res.send(updatedUser);
   } catch (error) {
     next(error);
   }
