@@ -4,17 +4,17 @@ const { errors } = require('celebrate');
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-err');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const cors = require('cors');
 
 const regexLink = /^https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=-]*)?$/;
 
 const app = express();
 
-app.use(cors({ origin:['http://localhost:3000'], credentials: true }));
+app.use(cors({ origin: ['https://alees.nomoredomainsrocks.ru'], credentials: true }));
 
 const { PORT = 3000 } = process.env;
 
