@@ -1,6 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+require('dotenv').config();
+
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 const ValidationError = require('../errors/validation-err'); // 400
 const UnathorizedError = require('../errors/unathorized-err'); // 401
@@ -18,7 +21,7 @@ module.exports.login = async (req, res, next) => {
     if (!checkPassword) {
       throw new UnathorizedError('Неправильные почта или пароль');
     }
-    const token = await jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+    const token = await jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
     res.cookie('jwt', token, { maxAge: 3600000, httpOnly: true, sameSite: true });
     res.send({ _id: user._id });
   } catch (error) {

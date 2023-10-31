@@ -10,13 +10,15 @@ const auth = require('./middlewares/auth');
 const NotFoundError = require('./errors/not-found-err');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
+require('dotenv').config();
+
 const regexLink = /^https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=-]*)?$/;
 
 const app = express();
 
-app.use(cors({ origin: ['https://alees.nomoredomainsrocks.ru'], credentials: true }));
+app.use(cors({ origin: ['https://alees.nomoredomainsrocks.ru', 'http://localhost:3000', 'http://localhost:3001'], credentials: true }));
 
-const { PORT = 3000 } = process.env;
+const { PORT } = process.env;
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
