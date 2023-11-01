@@ -90,7 +90,8 @@ module.exports.updateUserMe = async (req, res, next) => {
   try {
     const { name, about } = req.body;
     const updateUser = { name, about };
-    const user = await User.findByIdAndUpdate(req.user._id, updateUser, { new: true });
+    const id = req.user._id;
+    const user = await User.findByIdAndUpdate(id, updateUser, { new: true, runValidators: true });
     res.send(user);
   } catch (error) {
     next(error);
@@ -100,10 +101,15 @@ module.exports.updateUserMe = async (req, res, next) => {
 module.exports.updateAvatar = async (req, res, next) => {
   try {
     const { avatar } = req.body;
-    const updatedUser = await User.findByIdAndUpdate(req.user._id, { avatar }, { new: true });
-    res.send(updatedUser);
+    const id = req.user._id;
+    const updateUser = await User.findByIdAndUpdate(id, avatar, { new: true, runValidators: true });
+    res.send(updateUser);
   } catch (error) {
-    next(error);
+    if (error.name === 'ValidationError') {
+      next(new ValidationError('Переданы невалидные данные'));
+    } else {
+      next(error);
+    }
   }
 };
 

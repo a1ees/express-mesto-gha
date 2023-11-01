@@ -21,7 +21,11 @@ module.exports.getCardById = async (req, res, next) => {
     }
     res.send({ data: cards });
   } catch (error) {
-    next(error);
+    if (error.name === 'CastError') {
+      next(new ValidationError('Передан некорректный _id карточки'));
+    } else {
+      next(error);
+    }
   }
 };
 
